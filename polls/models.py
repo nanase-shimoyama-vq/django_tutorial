@@ -18,3 +18,12 @@ class Choice(models.Model):
 
     def __str__(self):
         return self.choice_text
+
+class Comment(models.Model):
+    comment_text = models.TextField(max_length=300)
+    comment_date = models.DateTimeField('date published')
+    
+    def __str__(self):
+        return self.comment_text
+    def was_published_recently(self):
+        return self.pub_date >= timezone.now() - datetime.timedelta(days=1) 
