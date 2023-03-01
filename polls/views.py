@@ -2,6 +2,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import generic
+from django.utils import timezone
 
 from .models import Choice, Question, Comment
 
@@ -48,3 +49,11 @@ class CommentView(generic.ListView):
 
     def get_queryset(self):
         return Comment.objects.order_by('-comment_date')[:5]
+
+def post_comment(request):
+    if request.POST:
+        comment_text = request.POST.get("comment_text")
+        model = Comment(comment_text = comment_text, comment_date = timezone.now())
+        model.save()
+
+    return HttpResponseRedirect(reverse('polls:comment'))
