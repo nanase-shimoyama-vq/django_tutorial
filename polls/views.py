@@ -12,14 +12,23 @@ class IndexView(generic.ListView):
     context_object_name = 'latest_question_list'
 
     def get_queryset(self):
-        """Return the last five published questions."""
-        return Question.objects.order_by('-pub_date')[:5]
+        # 最新の５件を取得、投稿日が現在時刻より前にある投稿のみ表示
+        # Choiceを持たない質問を非公開にする
+        return Question.objects.filter(pub_date__lte=timezone.now(),choice__isnull=False).distinct().order_by('-pub_date')[:5]
 
 
 class DetailView(generic.DetailView):
+    # どのモデルに対して動作するかを定義
     model = Question
+    # どのテンプレートに表示するかを定義
     template_name = 'polls/detail.html'
-
+    
+    def get_queryset(self):
+        """
+        まだ公開されていない質問は除外する
+        """
+        # Choiceを持たない質問を非公開にする
+        return Question.objects.filter(pub_date__lte=timezone.now(),choice__isnull=False).distinct()
 
 class ResultsView(generic.DetailView):
     model = Question
