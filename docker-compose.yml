@@ -1,0 +1,20 @@
+version: '3'       # docker-compose.ymlのファイル形式のバージョン
+services:          # dbサービスとwebサービス、2つのコンテナが起動
+  db:
+    image: mysql:8.0.28
+    environment:
+      MYSQL_ROOT_PASSWORD: root # ルートユーザのパスワードを設定
+      MYSQL_DATABASE: django-db # Djangoのプロジェクトで使うDBの名前
+      MYSQL_USER: django        # Djangoのプロジェクトから接続する際のユーザ名
+      MYSQL_PASSWORD: django
+      TZ: 'Asia/Tokyo'
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci # コンテナ起動時に実行されるコマンド
+  web:
+    build: .       # Dockerfileをもとにイメージをビルド, Dockerfileがある場所を指定
+    command: python3 manage.py runserver 0.0.0.0:28000 # 7
+    volumes:                  # カレントディレクトリを/codeにバインドマウント
+      - .:/code
+    ports:                    # 左は公開用のポート:右は転送先コンテナのポート,Djangoサーバーのポートに合わせる
+      - "28000:28000"
+    depends_on:               # 先にdbサービスを起動してからwebサービスを起動するように設定
+      - db
